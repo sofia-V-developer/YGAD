@@ -15,4 +15,6 @@ public interface SubjectDao {
 
     @Insert
     long insert(com.example.ygad.Subject subject);
+    @Query("SELECT * FROM subjects WHERE name LIKE :query OR teacher LIKE :query")
+    List<Subject> search(String query);
 }
