@@ -1,11 +1,13 @@
 package com.example.ygad;
 
+import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import android.content.Context;
+import androidx.room.TypeConverters;
 
 @Database(entities = {Subject.class, Grade.class}, version = 1)
+@TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract SubjectDao subjectDao();
     public abstract GradeDao gradeDao();
@@ -18,7 +20,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     context.getApplicationContext(),
                     AppDatabase.class,
                     "ygad_database"
-            ).allowMainThreadQueries().build();  // для простоты, потом уберём
+            ).allowMainThreadQueries().build();
         }
         return instance;
     }
