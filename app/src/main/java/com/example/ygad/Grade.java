@@ -17,9 +17,9 @@ public class Grade {
     public int id;
     public int subjectId;
     public int value;
-    public String type;  // "test", "exam", "homework"
+    public String type;
     public Date date;
-    public String source;  // "manual" или "photo"
+    public String source;
 
     public Grade(int subjectId, int value, String source) {
         this.subjectId = subjectId;
