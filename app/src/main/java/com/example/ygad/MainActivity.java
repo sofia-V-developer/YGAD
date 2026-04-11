@@ -1,6 +1,7 @@
 package com.example.ygad;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private UserData userData;
     private AppDatabase db;
     private List<Subject> allSubjects = new ArrayList<>();
+    private ImageView ivAvatarMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,14 +46,17 @@ public class MainActivity extends AppCompatActivity {
         btnAddSubject = findViewById(R.id.btnAddSubject);
         actvSubjectSearch = findViewById(R.id.actvSubjectSearch);
         rvSubjects = findViewById(R.id.rvSubjects);
-
-        // Аватарка с меню выхода
-        ImageView ivAvatarMenu = findViewById(R.id.ivAvatarMenu);
-        ivAvatarMenu.setOnClickListener(v -> showLogoutDialog());
+        ivAvatarMenu = findViewById(R.id.ivAvatarMenu);
 
         // База данных
         db = AppDatabase.getInstance(this);
         userData = new UserData(this);
+
+        // Загрузка аватарки
+        loadAvatar();
+
+        // Аватарка с меню выхода
+        ivAvatarMenu.setOnClickListener(v -> showLogoutDialog());
 
         // Показать имя пользователя
         String fullName = userData.getFirstName() + " " + userData.getLastName();
@@ -84,14 +89,14 @@ public class MainActivity extends AppCompatActivity {
             btnAddSubject.setOnClickListener(v -> {
                 startActivity(new Intent(this, AddSubjectActivity.class));
             });
+        } else {
+            // Студент не может фоткать журнал
+            btnAddPhoto.setVisibility(View.GONE);
         }
 
-        // Кнопка фото журнала
+        // Кнопка фото журнала (только для старосты)
         btnAddPhoto.setOnClickListener(v -> {
             Toast.makeText(this, "Фото журнала", Toast.LENGTH_SHORT).show();
-            if (!userData.isElder()) {
-                btnAddPhoto.setVisibility(View.GONE);
-            }
         });
 
         // Кнопка обновления
@@ -105,8 +110,24 @@ public class MainActivity extends AppCompatActivity {
 
         // Обработчик клика по предмету
         subjectAdapter.setOnSubjectClickListener(subject -> {
-            Toast.makeText(this, "Предмет: " + subject.name, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, SubjectDetailActivity.class);
+            intent.putExtra("subject_id", subject.id);
+            intent.putExtra("subject_name", subject.name);
+            startActivity(intent);
         });
+    }
+
+    private void loadAvatar() {
+        String avatarPath = userData.getAvatarPath();
+        if (avatarPath != null && !avatarPath.isEmpty()) {
+            try {
+                ivAvatarMenu.setImageURI(Uri.parse(avatarPath));
+            } catch (Exception e) {
+                ivAvatarMenu.setImageResource(R.drawable.circle_avatar);
+            }
+        } else {
+            ivAvatarMenu.setImageResource(R.drawable.circle_avatar);
+        }
     }
 
     private void showLogoutDialog() {
@@ -156,21 +177,11 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, names);
         actvSubjectSearch.setAdapter(adapter);
     }
-    String avatarPath = userData.getAvatarPath();
-if (avatarPath != null && !avatarPath.isEmpty()) {
-        ivAvatarMenu.setImageURI(Uri.parse(avatarPath));
-    } else {
-        ivAvatarMenu.setImageResource(R.drawable.ic_avatar_default);
-    }
-subjectAdapter.setOnSubjectClickListener(subject -> {
-        Intent intent = new Intent(this, SubjectDetailActivity.class);
-        intent.putExtra("subject_id", subject.id);
-        intent.putExtra("subject_name", subject.name);
-        startActivity(intent);
-    });
+
     @Override
     protected void onResume() {
         super.onResume();
         loadSubjects();
+        loadAvatar();
     }
 }

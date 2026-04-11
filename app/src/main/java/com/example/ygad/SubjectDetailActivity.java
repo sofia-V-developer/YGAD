@@ -38,6 +38,12 @@ public class SubjectDetailActivity extends AppCompatActivity {
         subjectId = getIntent().getIntExtra("subject_id", -1);
         subjectName = getIntent().getStringExtra("subject_name");
 
+        if (subjectId == -1) {
+            Toast.makeText(this, "Ошибка", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         tvSubjectName.setText(subjectName);
 
         // Кнопка удаления только для старосты
@@ -51,16 +57,16 @@ public class SubjectDetailActivity extends AppCompatActivity {
 
     private void loadData() {
         new Thread(() -> {
-            // Загружаем информацию о предмете
             Subject subject = db.subjectDao().getById(subjectId);
             float avg = db.gradeDao().getAverageBySubject(subjectId);
             List<Grade> grades = db.gradeDao().getBySubject(subjectId);
 
             runOnUiThread(() -> {
-                tvTeacher.setText("Преподаватель: " + (subject.teacher.isEmpty() ? "—" : subject.teacher));
+                if (subject != null) {
+                    tvTeacher.setText("Преподаватель: " + (subject.teacher.isEmpty() ? "—" : subject.teacher));
+                }
                 tvAverage.setText("Средний балл: " + String.format("%.2f", avg));
 
-                // Показываем оценки в RecyclerView
                 GradeAdapter adapter = new GradeAdapter(grades);
                 rvGrades.setLayoutManager(new LinearLayoutManager(this));
                 rvGrades.setAdapter(adapter);
@@ -71,7 +77,7 @@ public class SubjectDetailActivity extends AppCompatActivity {
     private void deleteSubject() {
         new AlertDialog.Builder(this)
                 .setTitle("Удалить предмет")
-                .setMessage("Вы уверены, что хотите удалить предмет \"" + subjectName + "\"? Все оценки по нему тоже будут удалены.")
+                .setMessage("Вы уверены, что хотите удалить предмет \"" + subjectName + "\"?")
                 .setPositiveButton("Удалить", (dialog, which) -> {
                     new Thread(() -> {
                         db.subjectDao().deleteById(subjectId);
