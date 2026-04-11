@@ -1,0 +1,44 @@
+# Gradle files
+.gradle/
+build/
+*/build/
+*/*/build/
+
+# Android Studio files
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.vscode/
+.cxx/
+
+# Local configuration file
+local.properties
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+
+# Keystore files (секретные ключи)
+*.jks
+*.keystore
+
+# Log files
+*.log
+
+# Captured files
+/screenshots/
+/captures/
+
+# Google Services
+google-services.json
+
+# IntelliJ
+*.class
