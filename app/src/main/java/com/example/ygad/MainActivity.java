@@ -162,6 +162,12 @@ if (avatarPath != null && !avatarPath.isEmpty()) {
     } else {
         ivAvatarMenu.setImageResource(R.drawable.ic_avatar_default);
     }
+subjectAdapter.setOnSubjectClickListener(subject -> {
+        Intent intent = new Intent(this, SubjectDetailActivity.class);
+        intent.putExtra("subject_id", subject.id);
+        intent.putExtra("subject_name", subject.name);
+        startActivity(intent);
+    });
     @Override
     protected void onResume() {
         super.onResume();

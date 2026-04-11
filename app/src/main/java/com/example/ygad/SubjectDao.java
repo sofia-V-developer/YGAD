@@ -15,4 +15,9 @@ public interface SubjectDao {
 
     @Insert
     long insert(Subject subject);
+    @Query("SELECT * FROM subjects WHERE id = :id")
+    Subject getById(int id);
+
+    @Query("DELETE FROM subjects WHERE id = :id")
+    void deleteById(int id);
 }
