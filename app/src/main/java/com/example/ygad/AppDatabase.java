@@ -24,4 +24,12 @@ public abstract class AppDatabase extends RoomDatabase {
         }
         return instance;
     }
+    @Database(entities = {Subject.class, Grade.class, Student.class}, version = 2)
+    @TypeConverters({Converters.class})
+    public abstract class AppDatabase extends RoomDatabase {
+        public abstract SubjectDao subjectDao();
+        public abstract GradeDao gradeDao();
+        public abstract StudentDao studentDao();  // ← ДОБАВИТЬ
+        // ... остальное без изменений
+    }
 }
