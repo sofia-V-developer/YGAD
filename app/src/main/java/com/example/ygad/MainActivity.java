@@ -156,7 +156,12 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, names);
         actvSubjectSearch.setAdapter(adapter);
     }
-
+    String avatarPath = userData.getAvatarPath();
+if (avatarPath != null && !avatarPath.isEmpty()) {
+        ivAvatarMenu.setImageURI(Uri.parse(avatarPath));
+    } else {
+        ivAvatarMenu.setImageResource(R.drawable.ic_avatar_default);
+    }
     @Override
     protected void onResume() {
         super.onResume();
