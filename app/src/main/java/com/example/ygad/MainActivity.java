@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Инициализация базы данных студентов
+        DatabaseInitializer.initializeStudents(this);
 
         // Инициализация элементов
         tvUserName = findViewById(R.id.tvUserName);
@@ -94,10 +99,8 @@ public class MainActivity extends AppCompatActivity {
             btnAddPhoto.setVisibility(View.GONE);
         }
 
-        // Кнопка фото журнала (только для старосты)
-        btnAddPhoto.setOnClickListener(v -> {
-            Toast.makeText(this, "Фото журнала", Toast.LENGTH_SHORT).show();
-        });
+        // Кнопка фото журнала (открывает камеру)
+        btnAddPhoto.setOnClickListener(v -> openCamera());
 
         // Кнопка обновления
         btnRefresh.setOnClickListener(v -> {
@@ -115,6 +118,48 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("subject_name", subject.name);
             startActivity(intent);
         });
+    }
+
+    private void openCamera() {
+        Intent intent = new Intent(this, CameraActivity.class);
+        cameraLauncher.launch(intent);
+    }
+
+    private final ActivityResultLauncher<Intent> cameraLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    String recognizedText = result.getData().getStringExtra("recognized_text");
+                    if (recognizedText != null && !recognizedText.isEmpty()) {
+                        processRecognizedText(recognizedText);
+                    }
+                }
+            });
+
+    private void processRecognizedText(String text) {
+        // Разбиваем на строки
+        String[] lines = text.split("\n");
+
+        // Регулярка для поиска фамилий и оценок
+        for (String line : lines) {
+            // Ищем фамилию (русские буквы) и оценки (цифры 2-5)
+            java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("([А-Яа-яёЁ]+).*?([2-5])").matcher(line);
+
+            if (matcher.find()) {
+                String lastName = matcher.group(1);
+                int gradeValue = Integer.parseInt(matcher.group(2));
+
+                // Ищем студента в БД
+                new Thread(() -> {
+                    Student student = db.studentDao().findByLastName(lastName);
+                    if (student != null) {
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, "Найдено: " + lastName + " - " + gradeValue, Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                }).start();
+            }
+        }
     }
 
     private void loadAvatar() {
