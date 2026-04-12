@@ -7,17 +7,17 @@ import androidx.room.PrimaryKey;
 public class Student {
     @PrimaryKey(autoGenerate = true)
     public int id;
-    public String lastName;   // фамилия
-    public String firstName;  // имя
-    public String group;      // группа
+    public String lastName;
+    public String firstName;
+    public String studentGroup;
 
-    public Student(String lastName, String firstName, String group) {
+    // Пустой конструктор (обязателен для Room)
+    public Student() {}
+
+    // Конструктор с параметрами
+    public Student(String lastName, String firstName, String studentGroup) {
         this.lastName = lastName;
         this.firstName = firstName;
-        this.group = group;
-    }
-
-    public String getFullName() {
-        return lastName + " " + firstName;
+        this.studentGroup = studentGroup;
     }
 }

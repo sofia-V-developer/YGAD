@@ -8,7 +8,7 @@ public class DatabaseInitializer {
         new Thread(() -> {
             // Проверяем, есть ли уже студенты
             if (db.studentDao().getAll().isEmpty()) {
-                // Список твоей группы (замени на реальные фамилии)
+                // Список твоей группы (22 человека)
                 String[][] students = {
                         {"Балакин", "Сергей"},
                         {"Батурин", "Антон"},
@@ -30,14 +30,11 @@ public class DatabaseInitializer {
                         {"Староверов", "Ярослав"},
                         {"Тихомирова", "Ульяна"},
                         {"Федосеев", "Иван"},
-                        {"Чилибанова", "Вероника"},
-
-                        // ... добавь остальных 22 человека
+                        {"Чилибанова", "Вероника"}
                 };
 
                 for (String[] s : students) {
-                    db.studentDao().insert(new Student(s[0], s[1], "Группа 1"));
-                }
+                    db.studentDao().insert(new Student(s[0], s[1], "Группа 1")); }
             }
         }).start();
     }

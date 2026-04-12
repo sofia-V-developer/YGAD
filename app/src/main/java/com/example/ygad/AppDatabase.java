@@ -6,7 +6,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-@Database(entities = {Subject.class, Grade.class, Student.class}, version = 2)
+@Database(entities = {Subject.class, Grade.class, Student.class}, version = 3)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract SubjectDao subjectDao();

@@ -53,21 +53,16 @@ public class SubjectDetailActivity extends AppCompatActivity {
 
         tvSubjectName.setText(subjectName);
 
-        // Кнопка удаления только для старосты
         if (userData.isElder()) {
             btnDeleteSubject.setVisibility(View.VISIBLE);
             btnDeleteSubject.setOnClickListener(v -> deleteSubject());
-        }
-
-        // Кнопка добавления оценок по фото (только для старосты)
-        if (userData.isElder()) {
             btnAddGradePhoto.setVisibility(View.VISIBLE);
             btnAddGradePhoto.setOnClickListener(v -> openCamera());
         } else {
+            btnDeleteSubject.setVisibility(View.GONE);
             btnAddGradePhoto.setVisibility(View.GONE);
         }
 
-        // Настройка RecyclerView для оценок
         gradeAdapter = new GradeAdapter();
         rvGrades.setLayoutManager(new LinearLayoutManager(this));
         rvGrades.setAdapter(gradeAdapter);
@@ -93,7 +88,8 @@ public class SubjectDetailActivity extends AppCompatActivity {
 
     private void processRecognizedText(String text) {
         String[] lines = text.split("\n");
-        Pattern pattern = Pattern.compile("([А-Яа-яёЁ]+).*?([2-5])");
+        // Ищем фамилию (русские буквы) и цифры 2-5
+        Pattern pattern = Pattern.compile("([А-Яа-яёЁ]+)\\s+.*?([2-5])");
 
         new Thread(() -> {
             int addedCount = 0;
@@ -104,12 +100,9 @@ public class SubjectDetailActivity extends AppCompatActivity {
                     String lastName = matcher.group(1);
                     int gradeValue = Integer.parseInt(matcher.group(2));
 
-                    // Ищем студента по фамилии
                     Student student = db.studentDao().findByLastName(lastName);
                     if (student != null) {
-                        // Сохраняем оценку
-                        Grade grade = new Grade(subjectId, gradeValue, "photo");
-                        grade.studentId = student.id;  // Привязываем к студенту
+                        Grade grade = new Grade(subjectId, student.id, gradeValue, "photo");
                         db.gradeDao().insert(grade);
                         addedCount++;
                     }
@@ -119,7 +112,7 @@ public class SubjectDetailActivity extends AppCompatActivity {
             final int finalAdded = addedCount;
             runOnUiThread(() -> {
                 Toast.makeText(this, "Добавлено оценок: " + finalAdded, Toast.LENGTH_LONG).show();
-                loadData(); // Обновляем список
+                loadData();
             });
         }).start();
     }
@@ -128,8 +121,6 @@ public class SubjectDetailActivity extends AppCompatActivity {
         new Thread(() -> {
             Subject subject = db.subjectDao().getById(subjectId);
             float avg = db.gradeDao().getAverageBySubject(subjectId);
-
-            // Загружаем оценки с информацией о студентах
             List<GradeWithStudent> grades = db.gradeDao().getGradesWithStudents(subjectId);
 
             runOnUiThread(() -> {
