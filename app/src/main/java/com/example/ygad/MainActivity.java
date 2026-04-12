@@ -1,6 +1,7 @@
 package com.example.ygad;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,6 +12,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,36 +25,42 @@ import java.util.stream.Collectors;
 public class MainActivity extends AppCompatActivity {
 
     private TextView tvOverallAverage, tvFailsCount, tvUserName;
-    private Button btnAddPhoto, btnRefresh, btnAddSubject;
+    private Button btnRefresh, btnAddSubject;
     private AutoCompleteTextView actvSubjectSearch;
     private RecyclerView rvSubjects;
     private SubjectAdapter subjectAdapter;
     private UserData userData;
     private AppDatabase db;
     private List<Subject> allSubjects = new ArrayList<>();
+    private ImageView ivAvatarMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Инициализация базы данных студентов
+        DatabaseInitializer.initializeStudents(this);
+
         // Инициализация элементов
         tvUserName = findViewById(R.id.tvUserName);
         tvOverallAverage = findViewById(R.id.tvOverallAverage);
         tvFailsCount = findViewById(R.id.tvFailsCount);
-        btnAddPhoto = findViewById(R.id.btnAddPhoto);
         btnRefresh = findViewById(R.id.btnRefresh);
         btnAddSubject = findViewById(R.id.btnAddSubject);
         actvSubjectSearch = findViewById(R.id.actvSubjectSearch);
         rvSubjects = findViewById(R.id.rvSubjects);
-
-        // Аватарка с меню выхода
-        ImageView ivAvatarMenu = findViewById(R.id.ivAvatarMenu);
-        ivAvatarMenu.setOnClickListener(v -> showLogoutDialog());
+        ivAvatarMenu = findViewById(R.id.ivAvatarMenu);
 
         // База данных
         db = AppDatabase.getInstance(this);
         userData = new UserData(this);
+
+        // Загрузка аватарки
+        loadAvatar();
+
+        // Аватарка с меню выхода
+        ivAvatarMenu.setOnClickListener(v -> showLogoutDialog());
 
         // Показать имя пользователя
         String fullName = userData.getFirstName() + " " + userData.getLastName();
@@ -86,14 +95,6 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        // Кнопка фото журнала
-        btnAddPhoto.setOnClickListener(v -> {
-            Toast.makeText(this, "Фото журнала", Toast.LENGTH_SHORT).show();
-            if (!userData.isElder()) {
-                btnAddPhoto.setVisibility(View.GONE);
-            }
-        });
-
         // Кнопка обновления
         btnRefresh.setOnClickListener(v -> {
             loadSubjects();
@@ -105,8 +106,24 @@ public class MainActivity extends AppCompatActivity {
 
         // Обработчик клика по предмету
         subjectAdapter.setOnSubjectClickListener(subject -> {
-            Toast.makeText(this, "Предмет: " + subject.name, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, SubjectDetailActivity.class);
+            intent.putExtra("subject_id", subject.id);
+            intent.putExtra("subject_name", subject.name);
+            startActivity(intent);
         });
+    }
+
+    private void loadAvatar() {
+        String avatarPath = userData.getAvatarPath();
+        if (avatarPath != null && !avatarPath.isEmpty()) {
+            try {
+                ivAvatarMenu.setImageURI(Uri.parse(avatarPath));
+            } catch (Exception e) {
+                ivAvatarMenu.setImageResource(R.drawable.circle_avatar);
+            }
+        } else {
+            ivAvatarMenu.setImageResource(R.drawable.circle_avatar);
+        }
     }
 
     private void showLogoutDialog() {
@@ -156,21 +173,11 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, names);
         actvSubjectSearch.setAdapter(adapter);
     }
-    String avatarPath = userData.getAvatarPath();
-if (avatarPath != null && !avatarPath.isEmpty()) {
-        ivAvatarMenu.setImageURI(Uri.parse(avatarPath));
-    } else {
-        ivAvatarMenu.setImageResource(R.drawable.ic_avatar_default);
-    }
-subjectAdapter.setOnSubjectClickListener(subject -> {
-        Intent intent = new Intent(this, SubjectDetailActivity.class);
-        intent.putExtra("subject_id", subject.id);
-        intent.putExtra("subject_name", subject.name);
-        startActivity(intent);
-    });
+
     @Override
     protected void onResume() {
         super.onResume();
         loadSubjects();
+        loadAvatar();
     }
 }

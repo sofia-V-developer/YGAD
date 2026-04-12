@@ -7,16 +7,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class GradeAdapter extends RecyclerView.Adapter<GradeAdapter.ViewHolder> {
 
-    private List<Grade> grades;
+    private List<GradeWithStudent> grades = new ArrayList<>();
     private SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
 
-    public GradeAdapter(List<Grade> grades) {
+    public void setGrades(List<GradeWithStudent> grades) {
         this.grades = grades;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -29,12 +31,13 @@ public class GradeAdapter extends RecyclerView.Adapter<GradeAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Grade grade = grades.get(position);
-        String gradeText = grade.value + " (" + grade.source + ")";
-        holder.text1.setText(gradeText);
-        holder.text2.setText(sdf.format(grade.date));
+        GradeWithStudent grade = grades.get(position);
 
-        if (grade.value < 3) {
+        String displayText = grade.studentLastName + " " + grade.studentFirstName + " — " + grade.gradeValue;
+        holder.text1.setText(displayText);
+        holder.text2.setText(sdf.format(new java.util.Date(Long.parseLong(grade.gradeDate))));
+
+        if (grade.gradeValue < 3) {
             holder.text1.setTextColor(0xFFFF0000);
         } else {
             holder.text1.setTextColor(0xFF000000);
