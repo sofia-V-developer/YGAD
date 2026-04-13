@@ -24,7 +24,7 @@
         android:text="Средний балл: --"
         android:textSize="18sp"
         android:textColor="#000000"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="8dp" />
 
     <TextView
         android:id="@+id/tvTeacher"
@@ -44,14 +44,12 @@
         android:textColor="#000000"
         android:layout_marginBottom="8dp" />
 
-    <!-- Список оценок -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvGrades"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <!-- Для старосты: кнопка удалить предмет -->
     <Button
         android:id="@+id/btnDeleteSubject"
         android:layout_width="match_parent"
@@ -59,7 +57,9 @@
         android:text="🗑️ Удалить предмет"
         android:background="#FF0000"
         android:textColor="#FFFFFF"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_marginTop="16dp" />
+
     <Button
         android:id="@+id/btnAddGradePhoto"
         android:layout_width="match_parent"
@@ -67,7 +67,7 @@
         android:text="📸 Добавить оценки по фото"
         android:background="#000000"
         android:textColor="#FFFFFF"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp" />
+        android:visibility="gone"
+        android:layout_marginTop="8dp" />
 
 </LinearLayout>

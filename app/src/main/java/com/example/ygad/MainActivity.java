@@ -119,13 +119,12 @@ public class MainActivity extends AppCompatActivity {
             try {
                 ivAvatarMenu.setImageURI(Uri.parse(avatarPath));
             } catch (Exception e) {
-                ivAvatarMenu.setImageResource(R.drawable.circle_avatar);
+                ivAvatarMenu.setImageResource(R.drawable.ic_avatar_default);
             }
         } else {
-            ivAvatarMenu.setImageResource(R.drawable.circle_avatar);
+            ivAvatarMenu.setImageResource(R.drawable.ic_avatar_default);
         }
     }
-
     private void showLogoutDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Выход из аккаунта")
