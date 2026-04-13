@@ -26,4 +26,11 @@ public interface GradeDao {
 
     @Query("SELECT COUNT(*) FROM grades WHERE value < 3 AND subjectId = :subjectId")
     int getFailCountBySubject(int subjectId);
+    @Query("SELECT grades.id as gradeId, grades.value as gradeValue, grades.date as gradeDate, grades.source as gradeSource, " +
+            "students.id as studentId, students.lastName as studentLastName, students.firstName as studentFirstName, students.studentGroup as studentGroup " +
+            "FROM grades " +
+            "JOIN students ON grades.studentId = students.id " +
+            "WHERE grades.subjectId = :subjectId AND grades.studentId = :studentId " +
+            "ORDER BY grades.date DESC")
+    List<GradeWithStudent> getGradesByStudentAndSubject(int studentId, int subjectId);
 }

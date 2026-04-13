@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -88,7 +89,6 @@ public class SubjectDetailActivity extends AppCompatActivity {
 
     private void processRecognizedText(String text) {
         String[] lines = text.split("\n");
-        // Ищем фамилию (русские буквы) и цифры 2-5
         Pattern pattern = Pattern.compile("([А-Яа-яёЁ]+)\\s+.*?([2-5])");
 
         new Thread(() -> {
@@ -121,14 +121,28 @@ public class SubjectDetailActivity extends AppCompatActivity {
         new Thread(() -> {
             Subject subject = db.subjectDao().getById(subjectId);
             float avg = db.gradeDao().getAverageBySubject(subjectId);
-            List<GradeWithStudent> grades = db.gradeDao().getGradesWithStudents(subjectId);
 
+            List<GradeWithStudent> grades;
+            if (userData.isElder()) {
+                // Староста видит всех
+                grades = db.gradeDao().getGradesWithStudents(subjectId);
+            } else {
+                // Обычный студент видит только свои оценки
+                Student currentStudent = db.studentDao().findByLastName(userData.getLastName());
+                if (currentStudent != null) {
+                    grades = db.gradeDao().getGradesByStudentAndSubject(currentStudent.id, subjectId);
+                } else {
+                    grades = new ArrayList<>();
+                }
+            }
+
+            final List<GradeWithStudent> finalGrades = grades;
             runOnUiThread(() -> {
                 if (subject != null) {
                     tvTeacher.setText("Преподаватель: " + (subject.teacher.isEmpty() ? "—" : subject.teacher));
                 }
                 tvAverage.setText("Средний балл: " + String.format("%.2f", avg));
-                gradeAdapter.setGrades(grades);
+                gradeAdapter.setGrades(finalGrades);
             });
         }).start();
     }
