@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -88,7 +89,6 @@ public class SubjectDetailActivity extends AppCompatActivity {
 
     private void processRecognizedText(String text) {
         String[] lines = text.split("\n");
-        // Ищем фамилию (русские буквы) и цифры 2-5
         Pattern pattern = Pattern.compile("([А-Яа-яёЁ]+)\\s+.*?([2-5])");
 
         new Thread(() -> {
@@ -146,6 +146,7 @@ public class SubjectDetailActivity extends AppCompatActivity {
             });
         }).start();
     }
+
     private void deleteSubject() {
         new AlertDialog.Builder(this)
                 .setTitle("Удалить предмет")
