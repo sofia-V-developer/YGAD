@@ -124,6 +124,11 @@ public class MainActivity extends AppCompatActivity {
         } else {
             ivAvatarMenu.setImageResource(R.drawable.ic_avatar_default);
         }
+        // Долгое нажатие на аватарку — смена темы
+        ivAvatarMenu.setOnLongClickListener(v -> {
+            showThemeDialog();
+            return true;
+        });
     }
     private void showLogoutDialog() {
         new AlertDialog.Builder(this)
@@ -178,5 +183,30 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         loadSubjects();
         loadAvatar();
+    }
+    private void showThemeDialog() {
+        String[] themes = {"Светлая тема", "Тёмная тема", "Системная (по умолчанию)"};
+
+        new AlertDialog.Builder(this)
+                .setTitle("Выберите тему")
+                .setItems(themes, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            setThemeMode(AppCompatDelegate.MODE_NIGHT_NO);
+                            break;
+                        case 1:
+                            setThemeMode(AppCompatDelegate.MODE_NIGHT_YES);
+                            break;
+                        case 2:
+                            setThemeMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                            break;
+                    }
+                })
+                .show();
+    }
+
+    private void setThemeMode(int mode) {
+        AppCompatDelegate.setDefaultNightMode(mode);
+        recreate(); // Перезапускаем активность для применения темы
     }
 }
